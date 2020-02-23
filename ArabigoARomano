@@ -1,0 +1,489 @@
+/*
+* Programa en línea de comandos para convertir un número arábigo a romano.
+* Cuenta con casos de validación en caso de cero o negativos y número más allá
+* del máximo.
+* Soporta hasta números con 4 digítos: 1-3999
+ */
+package utilidades;
+
+import java.util.ArrayList;
+
+/**
+ *
+ * @author jose
+ */
+public class Utilidades {
+
+    public static void main(String[] args) {
+        String romano = convertirNumeroARomano(3999);
+        System.out.println("Resulado a romano "+ romano);
+ 
+
+    }
+
+    public static String convertirNumeroARomano(int numeroArabigo) {
+        String resultado = null;
+        resultado = verificar(numeroArabigo);
+        if (resultado == null) {
+            int longitud = Integer.toString(numeroArabigo).length();
+            int[] arregloNumeros = new int[longitud];
+            ArrayList<String> letrasRomanas = new ArrayList<>();
+            arregloNumeros = segmentarNumeros(numeroArabigo);
+            letrasRomanas = seleccionarCaso(arregloNumeros, letrasRomanas);
+            resultado = unirLetras(letrasRomanas);
+        }
+        return resultado;
+    }
+
+    private static ArrayList seleccionarCaso(int[] arregloNumeros, ArrayList letrasRomanas) {
+        ArrayList<String> letrasRomanasParcial = new ArrayList<>();
+        letrasRomanasParcial = letrasRomanas;
+        int longitud = arregloNumeros.length;
+        while (longitud >= 1) {
+            switch (longitud) {
+                case 1:
+                    letrasRomanasParcial.add(obtenerLetrasBase(arregloNumeros));
+                    break;
+                case 2:
+                    letrasRomanasParcial.add(obtenerLetrasDecimal(arregloNumeros));
+                    break;
+                case 3:
+                    letrasRomanasParcial.add(obtenerLetrasCentesima(arregloNumeros));
+                    break;
+                case 4:
+                    letrasRomanasParcial.add(obtenerLetrasMilesima(arregloNumeros));
+                    break;
+            }
+            arregloNumeros = reducirLongitud(arregloNumeros);
+            longitud--;
+        }
+        return letrasRomanasParcial;
+    }
+
+    private static String obtenerLetrasBase(int[] arregloNumeros) {
+        int numero = arregloNumeros[0];
+        String letras = "";
+        switch (numero) {
+            case 1:
+            case 2:
+            case 3:
+                letras = multiplicarLetra("I", numero);
+                break;
+            case 4:
+                letras = "IV";
+                break;
+            case 5:
+                letras = "V";
+                break;
+            case 6:
+            case 7:
+            case 8:
+                letras = "V".concat(multiplicarLetra("I", numero));
+                break;
+            case 9:
+                letras = "IX";
+                break;
+        }
+        return letras;
+    }
+
+    private static String obtenerLetrasDecimal(int[] arregloNumeros) {
+        int numero = arregloNumeros[0];
+        String letras = "";
+        switch (numero) {
+            case 1:
+            case 2:
+            case 3:
+                letras = multiplicarLetra("X", numero);
+                break;
+            case 4:
+                letras = "XL";
+                break;
+            case 5:
+                letras = "L";
+                break;
+            case 6:
+            case 7:
+            case 8:
+                letras = "L".concat(multiplicarLetra("X", numero));
+                break;
+            case 9:
+                letras = "XC";
+                break;
+        }
+        return letras;
+    }
+
+    private static String obtenerLetrasCentesima(int[] arregloNumeros) {
+        int numero = arregloNumeros[0];
+        String letras = "";
+        switch (numero) {
+            case 1:
+            case 2:
+            case 3:
+                letras = multiplicarLetra("C", numero);
+                break;
+            case 4:
+                letras = "CD";
+                break;
+            case 5:
+                letras = "D";
+                break;
+            case 6:
+            case 7:
+            case 8:
+                letras = "D".concat(multiplicarLetra("I", numero));
+                break;
+            case 9:
+                letras = "CM";
+                break;
+        }
+        return letras;
+    }
+
+    private static String obtenerLetrasMilesima(int[] arregloNumeros) {
+        int numero = arregloNumeros[0];
+        String letras = "";
+        switch (numero) {
+            case 1:
+            case 2:
+            case 3:
+                letras = multiplicarLetra("M", numero);
+        }
+        return letras;
+    }
+
+    private static String multiplicarLetra(String letra, int veces) {
+        String letras = "";
+        for (int i = 0; i < veces; i++) {
+            letras = letras.concat(letra);
+        }
+        return letras;
+    }
+
+    private static int[] segmentarNumeros(int numeroArabigo) {
+        int longitud = Integer.toString(numeroArabigo).length();
+        int[] arregloNumeros = new int[longitud];
+        int arregloTamano = longitud - 1;
+        while (numeroArabigo > 0) {
+            arregloNumeros[arregloTamano] = numeroArabigo % 10;
+            numeroArabigo = numeroArabigo / 10;
+            arregloTamano--;
+        }
+        return arregloNumeros;
+    }
+
+    public static int[] reducirLongitud(int[] arregloNumeros) {
+        int arregloTamano = arregloNumeros.length - 1;
+        int[] arregloReducido = new int[arregloTamano];
+        for (int i = 0; i < arregloTamano; i++) {
+            arregloReducido[i] = arregloNumeros[i + 1];
+        }
+        return arregloReducido;
+    }
+
+    private static String verificar(int numeroArabigo) {
+        String check = null;
+        check = verificarPositivo(numeroArabigo);
+        if (numeroArabigo > 3999) {
+            check = "Número demasiado grande";
+        }
+        return check;
+    }
+
+    private static String verificarPositivo(int numeroArabigo) {
+        if (numeroArabigo < 0) {
+            return "Solo números mayores a cero";
+        }
+        return null;
+    }
+
+    private static String unirLetras(ArrayList<String> arrayLetras) {
+        String cadena = "";
+        for (int i = 0; i < arrayLetras.size(); i++) {
+            cadena = cadena.concat(arrayLetras.get(i));
+
+        }
+        return cadena;
+    }
+
+    public static String convertirNumeroANumeral(int numeroArabigo) {
+        String resultado = null;
+        resultado = verificarPositivo(numeroArabigo);
+        if (resultado == null) {
+            int longitud = Integer.toString(numeroArabigo).length();
+            int[] arregloNumeros = new int[longitud];
+            ArrayList<String> letrasNumeral = new ArrayList<>();
+            arregloNumeros = segmentarNumeros(numeroArabigo);
+            letrasNumeral = seleccionarCasoNumeral(arregloNumeros, letrasNumeral);
+            resultado = unirLetras(letrasNumeral);
+        }
+        return resultado;
+    }
+
+    private static ArrayList<String> seleccionarCasoNumeral(int[] arregloNumeros, ArrayList<String> letrasNumeral) {
+        ArrayList<String> letrasNumeralesParcial = new ArrayList<>();
+        letrasNumeralesParcial = letrasNumeral;
+        int longitud = arregloNumeros.length;
+        int i = 0;
+        boolean apocopado = esApocopado(longitud, letrasNumeralesParcial.size());
+        while (longitud >= 1) {
+            
+            switch (longitud) {
+                case 1:
+                case 7:
+                    letrasNumeralesParcial.add(obtenerNumeralBase(arregloNumeros[i], apocopado));
+                    if (longitud == 7) {
+                        letrasNumeralesParcial.add("MILLONES ");
+                    }
+                    break;
+                case 2:
+                case 5:
+                case 8:
+                    if (arregloNumeros[i] != 1 && arregloNumeros[i] != 2 && arregloNumeros[i+1] != 0) {
+                        letrasNumeralesParcial.add(casoDecimalVariosParciales(arregloNumeros, longitud, i));
+                    } else {
+                        letrasNumeralesParcial.add(seleccionarCasoDecimal(arregloNumeros, apocopado, longitud, i));
+                        longitud--;
+                        i++;
+                    }
+                    break;
+                case 3:
+                case 6:
+                case 9:
+                    if (esNumeroCerrado(arregloNumeros) && arregloNumeros[i] == 1) {
+                        letrasNumeralesParcial.add("CIEN ");
+                        longitud--;
+                        i++;
+                    } else {
+                        letrasNumeralesParcial.add(obtenerNumeralCentesima(arregloNumeros[i]));
+                    }
+                    break;
+                case 4:
+                    letrasNumeralesParcial.add(obtenerNumeralMilesimaBase(arregloNumeros[i], apocopado, i, arregloNumeros));
+                    break;
+            }
+            i++;
+            longitud--;
+        }
+        return letrasNumeralesParcial;
+    }
+
+    private static boolean esApocopado(int longitud, int size) {
+        return longitud > 1 && size < 1;
+    }
+
+    private static String obtenerNumeralBase(int numero, boolean apocopado) {
+
+        String numeral = "";
+        switch (numero) {
+            case 1:
+                if (apocopado) {
+                    numeral = "UN ";
+                } else {
+                    numeral = "UNO ";
+                }
+                break;
+            case 2:
+                numeral = "DOS ";
+                break;
+            case 3:
+                numeral = "TRES ";
+                break;
+            case 4:
+                numeral = "CUATRO ";
+                break;
+            case 5:
+                numeral = "CINCO ";
+                break;
+            case 6:
+                numeral = "SEIS ";
+                break;
+            case 7:
+                numeral = "SIETE ";
+                break;
+            case 8:
+                numeral = "OCHO ";
+                break;
+            case 9:
+                numeral = "NUEVE ";
+                break;
+        }
+        return numeral;
+    }
+
+    private static String obtenerNumeralDecimal(int numero) {
+        String numeral = "";
+        switch (numero) {
+            case 1:
+                numeral = "DIEZ ";
+                break;
+            case 2:
+                numeral = "VEINTE ";
+                break;
+            case 3:
+                numeral = "TREINTA ";
+                break;
+            case 4:
+                numeral = "CUARENTA ";
+                break;
+            case 5:
+                numeral = "CINCUENTA ";
+                break;
+            case 6:
+                numeral = "SESENTA ";
+                break;
+            case 7:
+                numeral = "SETENTA ";
+                break;
+            case 8:
+                numeral = "OCHENTA ";
+                break;
+            case 9:
+                numeral = "NOVENTA ";
+                break;
+        }
+        return numeral;
+    }
+
+    private static String obtenerNumeralDecimalEspecialDiez(int numero) {
+        String numeral = "";
+        switch (numero) {
+            case 1:
+                numeral = "ONCE ";
+                break;
+            case 2:
+                numeral = "DOCE ";
+                break;
+            case 3:
+                numeral = "TRECE ";
+                break;
+            case 4:
+                numeral = "CATORCE ";
+                break;
+            case 5:
+                numeral = "QUINCE ";
+                break;
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                numeral = "DIECI".concat(obtenerNumeralBase(numero, false));
+                break;
+        }
+        return numeral;
+    }
+
+    private static String obtenerNumeralDecimalEspecialVeinte(int numero, boolean apocopado) {
+        String numeral = "";
+        switch (numero) {
+            case 0:
+                numeral = "VEINTE ";
+                break;
+            case 1:
+                if (apocopado) {
+                    numeral = "VEINTIÚN ";
+                } else {
+                    numeral = "VEINTIUNO ";
+                }
+                break;
+            case 2:
+                numeral = "VEINTIDÓS ";
+                break;
+            case 3:
+                numeral = "VEINTITRÉS ";
+                break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+                numeral = "VEINTI".concat(obtenerNumeralBase(numero, false));
+                break;
+        }
+        return numeral;
+    }
+
+    private static String obtenerNumeralCentesima(int numero) {
+        String numeral = "";
+        switch (numero) {
+            case 1:
+                numeral = "CIENTO ";
+                break;
+            case 5:
+                numeral = "QUINIENTOS ";
+                break;
+            case 7:
+                numeral = "SETECIENTOS ";
+                break;
+            case 9:
+                numeral = "NOVECIENTOS ";
+                break;
+            case 2:
+            case 3:
+            case 4:
+            case 6:
+            case 8:
+                numeral = obtenerNumeralBase(numero, false).trim().concat("CIENTOS ");
+                break;
+        }
+        return numeral;
+    }
+
+    private static String obtenerNumeralMilesimaBase(int numero, boolean apocopado, int i, int[] arregloNumeros) {
+        String numeral = "";
+        if (arregloNumeros.length > 5 ) {
+            if (arregloNumeros[i-2] != 0 || arregloNumeros[i-1] != 0) {
+                numeral = "MIL ";
+            }
+        } else if (arregloNumeros[i] != 0) {
+            numeral = numeral.concat(obtenerNumeralBase(numero, apocopado)).concat("MIL ");
+        }
+        return numeral;
+    }
+
+    private static boolean esNumeroCerrado(int[] arregloNumeros) {
+        int longitud = arregloNumeros.length;
+        for (int i = 1; i < longitud; i++) {
+            if (arregloNumeros[i] != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static String seleccionarCasoDecimal(int[] arregloNumeros, boolean apocopado, int longitud, int i) {
+        ArrayList<String> letrasNumeralesParcial = new ArrayList<>();
+        if (esNumeroCerrado(arregloNumeros) || arregloNumeros[i+1] == 0) {
+            letrasNumeralesParcial.add(obtenerNumeralDecimal(arregloNumeros[i]));
+        } else if (arregloNumeros[i] == 2) {
+            letrasNumeralesParcial.add(obtenerNumeralDecimalEspecialVeinte(arregloNumeros[i+1], apocopado));
+        } else {
+            letrasNumeralesParcial.add(obtenerNumeralDecimalEspecialDiez(arregloNumeros[i+1]));
+        }
+        if (arregloNumeros.length > 5) {
+            if (longitud == 5 && (arregloNumeros[i-1] != 0 || arregloNumeros[i] != 0)) {
+            letrasNumeralesParcial.add("MIL ");
+            }
+        }
+        if (longitud == 8) {
+            letrasNumeralesParcial.add("MILLONES ");
+        }
+
+        return unirLetras(letrasNumeralesParcial);
+    }
+
+    private static String casoDecimalVariosParciales(int[] arregloNumeros, int longitud, int i) {
+        ArrayList<String> letrasNumeralesParcial = new ArrayList<>();
+        if (arregloNumeros[i] != 0) {
+            letrasNumeralesParcial.add(obtenerNumeralDecimal(arregloNumeros[i]));
+            letrasNumeralesParcial.add("Y ");           
+        }
+        if (longitud == 5) {
+            letrasNumeralesParcial.add("MIL ");
+        }
+        return unirLetras(letrasNumeralesParcial);
+    }
+
+}
